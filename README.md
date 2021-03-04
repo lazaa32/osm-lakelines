@@ -10,8 +10,13 @@ It is using [ungarj/label_centerlines](https://github.com/ungarj/label_centerlin
 
 [**:open_file_folder: Download lake center lines as GeoJSON, Shapefile, GeoPackage from the releases page**](https://github.com/lukasmartinelli/osm-lakelines/releases/latest).
 
-## Run Workflow
+## Info
 This is a dedockerized version of https://github.com/lukasmartinelli/osm-lakelines . Its meant to be used with a pre set up environmeon like https://github.com/acalcutt/wdb-map-gen
 
+Needs:
+openmaptiles-tools ( https://github.com/openmaptiles/openmaptiles-tools)
+label_centerline ( https://github.com/acalcutt/label_centerlines )
+pgsql2shp (PostGIS)
 
+## Run Workflow
 OSM Planet PBF -> imposm -> PostgreSQL -> Shapefile -> osm_lake_centerline.geojson
