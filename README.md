@@ -15,7 +15,7 @@ This is a dedockerized version of https://github.com/lukasmartinelli/osm-lakelin
 
 Needs:
 openmaptiles-tools ( https://github.com/openmaptiles/openmaptiles-tools)
-label_centerline ( https://github.com/acalcutt/label_centerlines )
+label_centerline ( https://github.com/ungarj/label_centerlines.git )
 pgsql2shp ( https://postgis.net/install/ )
 
 ## Run Workflow
