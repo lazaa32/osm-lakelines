@@ -19,4 +19,4 @@ label_centerline ( https://github.com/ungarj/label_centerlines.git )
 pgsql2shp ( https://postgis.net/install/ )
 
 ## Run Workflow
-OSM Planet PBF -> imposm -> PostgreSQL -> Shapefile -> osm_lake_centerline.geojson
+OSM Planet PBF -> imposm3 -> PostgreSQL -> pgsql2shp -> Shapefile -> label_centerlines -> osm_lake_centerline.geojson
