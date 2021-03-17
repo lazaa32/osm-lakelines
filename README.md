@@ -2,7 +2,7 @@
 <img align="right" alt="Lake center lines for labels" width="250" src="lakelines.png" />
 
 Calculate nice centered linestrings for labelling lake polygons.
-This repository provides downloadable Shapefiles containing center lines for lake polygons
+This repository provides downloadable geojson containing center lines for lake polygons
 that you can use to label OSM lake polygons. You can match the OSM ID of the linestrings to your
 data source to merge the data.
 
