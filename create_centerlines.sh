@@ -3,7 +3,8 @@
 CONFIG_DIR=$(pwd)/config
 EXPORT_DIR=$(pwd)/data
 FULL_PBF=$EXPORT_DIR/planet-latest.osm.pbf
-CENTERLINES_SHP=$EXPORT_DIR/osm_lake_polygon.shp
+LAKE_SHP=$EXPORT_DIR/osm_lake_polygon.shp
+CENTERLINES_SHP=$EXPORT_DIR/lake_centerline.shp
 CENTERLINES_GEOJSON=$EXPORT_DIR/lake_centerline.geojson
 MAPPING_YAML=$CONFIG_DIR/lake_centerlines.yaml
 IMPOSM3_CACHE_DIR=$EXPORT_DIR/lake_centerlines_cache
@@ -26,9 +27,11 @@ if [ ! -f $CENTERLINES_GEOJSON ]; then
 		tools/imposm3/bin/imposm import -connection "$PG_CONNECT" -mapping "$MAPPING_YAML" -overwritecache -cachedir "$IMPOSM3_CACHE_DIR" -read "$FULL_PBF" -dbschema-import="$DB_SCHEMA" -write
 		echo "====> : Exporting lake shapes into a shapefile"
 		query="SELECT osm_id, ST_SimplifyPreserveTopology(geometry, 100) AS geometry FROM osm_lake_polygon WHERE area > 2 * 1000 * 1000 AND ST_GeometryType(geometry)='ST_Polygon' AND name <> '' ORDER BY area DESC"
-		pgsql2shp -f "$CENTERLINES_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
+		pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
 		echo "====> : Creating a lake_centerline.geojson file from the exported shapefile"
-		label_centerlines --output_driver GeoJSON "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
+		label_centerlines --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
+		echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
+		ogr2ogr -f "ESRI Shapefile" "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
 	fi
 else
 	echo "====> : $CENTERLINES_GEOJSON Already Exists. Please delete it or move it and try again."
