@@ -30,7 +30,7 @@ if [ ! -f $CENTERLINES_GEOJSON ]; then
 		pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
 		echo "====> : Creating a lake_centerline.geojson file from the exported shapefile"
 		label_centerlines --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
-		echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
+		echo "====> : Creating a lake_centerline.shp file from the exported lake_centerline.geojson"
 		ogr2ogr -f "ESRI Shapefile" "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
 	fi
 else
