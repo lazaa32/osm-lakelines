@@ -152,7 +152,7 @@ read -p "Install label_centerlines? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	git clone https://github.com/ungarj/label_centerlines.git
+	git clone https://github.com/acalcutt/label_centerlines.git
 	cd label_centerlines
 	pip install -r requirements.txt
 	python3 setup.py install
