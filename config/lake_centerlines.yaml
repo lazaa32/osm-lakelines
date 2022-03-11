@@ -13,4 +13,5 @@ tables:
     mapping:
       water:
       - lake
+      - reservoir
     type: polygon
