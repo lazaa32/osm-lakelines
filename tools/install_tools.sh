@@ -16,26 +16,31 @@ then
 fi
 
 # Posgresql 13
-read -p "Install Posgresql 13? " -n 1 -r
+read -p "Install Posgresql 14? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-	
-	apt-get --assume-yes install postgresql-13 postgresql-server-dev-13
+	apt-get update
+	apt-get --assume-yes install postgresql-14 postgresql-server-dev-14
 	systemctl enable postgresql
 	export PATH="/usr/lib/postgresql/13/bin:$PATH"
 fi
 
-#openmaptiles-tools
+#openmaptiles + openmaptiles-tools
 read -p "Install openmaptiles + openmaptiles-tools? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	# openmaptiles-tools install
 	apt-get install graphviz sqlite3 aria2 osmctools
-	python3 -m pip install git+https://github.com/openmaptiles/openmaptiles-tools@v5.3.2
+	python3 -m pip install git+https://github.com/openmaptiles/openmaptiles-tools@v6.1.4
+	# openmaptiles
+	git clone https://github.com/openmaptiles/openmaptiles.git
+	cd openmaptiles
+	git checkout tags/v3.13
+	cd ..
 fi
 
 # osml10n Postgres extension
@@ -69,9 +74,9 @@ read -p "Install GEOS? " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
-	wget http://download.osgeo.org/geos/geos-3.9.1.tar.bz2
-	tar -xvf geos-3.9.1.tar.bz2
-	cd geos-3.9.1
+	wget http://download.osgeo.org/geos/geos-3.10.2.tar.bz2
+	tar -xvf geos-3.10.2.tar.bz2
+	cd geos-3.10.2
 	chmod +x configure
 	./configure
 	make -j
@@ -85,9 +90,9 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	apt-get --assume-yes install sqlite3 libsqlite3-dev libtiff-dev libcurl4-openssl-dev pkg-config
-	wget https://download.osgeo.org/proj/proj-7.2.1.tar.gz
-	tar -xvf proj-7.2.1.tar.gz
-	cd proj-7.2.1
+	wget https://download.osgeo.org/proj/proj-8.2.1.tar.gz
+	tar -xvf proj-8.2.1.tar.gz
+	cd proj-8.2.1
 	chmod +x configure
 	./configure
 	make
@@ -104,9 +109,9 @@ if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	rm -rf gdal-3.2.1
 	apt-get --assume-yes   install libsqlite3-dev libspatialite-dev
-	wget https://github.com/OSGeo/gdal/releases/download/v3.2.1/gdal-3.2.1.tar.gz
-	tar -xvf gdal-3.2.1.tar.gz
-	cd gdal-3.2.1
+	wget https://github.com/OSGeo/gdal/releases/download/v3.4.1/gdal-3.4.1.tar.gz
+	tar -xvf gdal-3.4.1.tar.gz
+	cd gdal-3.4.1
 	chmod +x configure
 	./configure --with-proj=/usr/local --with-spatialite --with-sqlite3
 	make
@@ -125,9 +130,9 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
 	apt-get --assume-yes install libxml2-dev libprotobuf-dev libprotobuf-c-dev protobuf-c-compiler
-	wget https://download.osgeo.org/postgis/source/postgis-3.1.1.tar.gz
-	tar -xvf postgis-3.1.1.tar.gz
-	cd postgis-3.1.1
+	wget https://download.osgeo.org/postgis/source/postgis-3.2.1.tar.gz
+	tar -xvf postgis-3.2.1.tar.gz
+	cd postgis-3.2.1
 	chmod +x configure
 	./configure
 	make
