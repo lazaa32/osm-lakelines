@@ -82,6 +82,7 @@ then
 	make -j
 	make install
 	cd ..
+	ldconfig
 fi
 
 #Install proj
@@ -97,8 +98,7 @@ then
 	./configure
 	make
 	make install
-	ln -s /usr/local/lib/libproj.so.19 /usr/lib/libproj.so.19
-	ln -s /usr/local/lib/libproj.so.19.1.1 /usr/lib/libproj.so.19.1.1
+	ldconfig
 	cd ..
 fi
 
@@ -117,10 +117,7 @@ then
 	make
 	make install
 	#Fix for (ogr2ogr: error while loading shared libraries: libgdal.so.27: cannot open shared object file: No such file or directory)
-	ln -s /usr/local/lib/libgdal.so.27.0.3 /usr/lib/libgdal.so.27.0.3
-	ln -s /usr/local/lib/libgdal.so /usr/lib/libgdal.so
-	ln -s /usr/local/lib/libgdal.so.27 /usr/lib/libgdal.so.27
-	ln -s /usr/local/lib/libgdal.so.28 /usr/lib/libgdal.so.28
+	ldconfig
 	cd ..
 fi
 
