@@ -14,4 +14,7 @@ tables:
       water:
       - lake
       - reservoir
+      - lagoon
+      - stream_pool
+      - pond
     type: polygon
