@@ -37,14 +37,14 @@ PGPASSWORD=$POSTGRES_PASS psql -h $POSTGRES_HOST --username="$POSTGRES_USER" <<E
 	\c $POSTGRES_DB;
 	DROP TABLE IF EXISTS $SIMPLIFY_TABLE;
 	SELECT
-		osm_id, ST_SimplifyVW(geometry,50) As geometry, ST_Npoints(ST_SimplifyVW(geometry,100)) As points 
+		osm_id, ST_SimplifyVW(geometry,100) As geometry, ST_Npoints(ST_SimplifyVW(geometry,100)) As points 
 	INTO $SIMPLIFY_TABLE
 	FROM
 		osm_lake_polygon
 	WHERE area > 2 * 1000 * 1000 AND ST_GeometryType(geometry)IN ('ST_Polygon','ST_MultiPolygon') AND name <> '' ORDER BY area DESC;
 		
 	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry,100), points = ST_Npoints(ST_SimplifyVW(geometry, 200))
+	SET geometry = ST_SimplifyVW(geometry,200), points = ST_Npoints(ST_SimplifyVW(geometry, 200))
 	WHERE points > 3000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry,400), points = ST_Npoints(ST_SimplifyVW(geometry, 400))
