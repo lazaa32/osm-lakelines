@@ -45,46 +45,46 @@ PGPASSWORD=$POSTGRES_PASS psql -h $POSTGRES_HOST --username="$POSTGRES_USER" <<E
 		
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry,200), points = ST_Npoints(ST_SimplifyVW(geometry, 200))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry,400), points = ST_Npoints(ST_SimplifyVW(geometry, 400))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 800), points = ST_Npoints(ST_SimplifyVW(geometry, 800))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 3200), points = ST_Npoints(ST_SimplifyVW(geometry, 3200))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 6400), points = ST_Npoints(ST_SimplifyVW(geometry, 6400))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 12800), points = ST_Npoints(ST_SimplifyVW(geometry, 12800))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 25600), points = ST_Npoints(ST_SimplifyVW(geometry, 25600))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 51200), points = ST_Npoints(ST_SimplifyVW(geometry, 51200))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 102400), points = ST_Npoints(ST_SimplifyVW(geometry, 102400))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 204800), points = ST_Npoints(ST_SimplifyVW(geometry, 204800))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 409600), points = ST_Npoints(ST_SimplifyVW(geometry, 409600))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 819200), points = ST_Npoints(ST_SimplifyVW(geometry, 819200))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 1638400), points = ST_Npoints(ST_SimplifyVW(geometry, 1638400))
-	WHERE points > 3000;
+	WHERE points > 6000;
 	UPDATE $SIMPLIFY_TABLE
 	SET geometry = ST_SimplifyVW(geometry, 3276800), points = ST_Npoints(ST_SimplifyVW(geometry, 3276800))
-	WHERE points > 3000;
+	WHERE points > 6000;
 EOSQL
 
 
@@ -92,8 +92,8 @@ EOSQL
 		query="SELECT osm_id, ST_makeValid(geometry) AS geometry FROM $SIMPLIFY_TABLE ORDER BY points DESC, osm_id DESC"
 		pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
 		echo "====> : Creating a lake_centerline.geojson file from the exported shapefile"
-		label_centerlines --verbose --max_points=3000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
-		#label_centerlines --verbose --max_points=3000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GPKG "$LAKE_SHP" "$CENTERLINES_GPKG"
+		label_centerlines --verbose --max_points=6000 --simplification=0.02 --smooth=2 --max_paths=5 --segmentize_maxlen 100 --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
+		#label_centerlines --verbose --max_points=6000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GPKG "$LAKE_SHP" "$CENTERLINES_GPKG"
 		#echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
 		ogr2ogr -f "ESRI Shapefile" "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
 	fi
