@@ -17,4 +17,6 @@ tables:
       - lagoon
       - stream_pool
       - pond
+      natural:
+      - bay
     type: polygon
