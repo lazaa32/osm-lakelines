@@ -18,7 +18,7 @@ if [ ! -f $CENTERLINES_GEOJSON ]; then
 	#Download the planet pdb if it does not exist
 	if [ ! -f $FULL_PBF ]; then
 		echo "====> : Downloading PBF $FULL_PBF"
-		download-osm planet -o $FULL_PBF
+		#download-osm planet -o $FULL_PBF
 	fi
 	
 	if [ -f $FULL_PBF ]; then
@@ -26,74 +26,15 @@ if [ ! -f $CENTERLINES_GEOJSON ]; then
 		PG_CONNECT="postgis://$POSTGRES_USER:$POSTGRES_PASS@$POSTGRES_HOST/$POSTGRES_DB"
 		DB_SCHEMA="public"
 		
-		tools/imposm3/bin/imposm import -connection "$PG_CONNECT" -mapping "$MAPPING_YAML" -overwritecache -cachedir "$IMPOSM3_CACHE_DIR" -read "$FULL_PBF" -dbschema-import="$DB_SCHEMA" -write
-		echo "====> : Simplifying polygons with a lot of points"
-PGPASSWORD=$POSTGRES_PASS psql -h $POSTGRES_HOST --username="$POSTGRES_USER" <<EOSQL
-	SELECT pg_terminate_backend(pg_stat_activity.pid)
-	FROM pg_stat_activity
-	WHERE pg_stat_activity.datname = '$POSTGRES_DB'
-	  AND pid <> pg_backend_pid();
-	  
-	\c $POSTGRES_DB;
-	DROP TABLE IF EXISTS $SIMPLIFY_TABLE;
-	SELECT
-		osm_id, ST_SimplifyVW(geometry,100) As geometry, ST_Npoints(ST_SimplifyVW(geometry,100)) As points 
-	INTO $SIMPLIFY_TABLE
-	FROM
-		osm_lake_polygon
-	WHERE area > 2 * 1000 * 1000 AND ST_GeometryType(geometry)IN ('ST_Polygon','ST_MultiPolygon') AND name <> '' ORDER BY area DESC;
-		
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry,200), points = ST_Npoints(ST_SimplifyVW(geometry, 200))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry,400), points = ST_Npoints(ST_SimplifyVW(geometry, 400))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 800), points = ST_Npoints(ST_SimplifyVW(geometry, 800))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 3200), points = ST_Npoints(ST_SimplifyVW(geometry, 3200))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 6400), points = ST_Npoints(ST_SimplifyVW(geometry, 6400))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 12800), points = ST_Npoints(ST_SimplifyVW(geometry, 12800))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 25600), points = ST_Npoints(ST_SimplifyVW(geometry, 25600))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 51200), points = ST_Npoints(ST_SimplifyVW(geometry, 51200))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 102400), points = ST_Npoints(ST_SimplifyVW(geometry, 102400))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 204800), points = ST_Npoints(ST_SimplifyVW(geometry, 204800))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 409600), points = ST_Npoints(ST_SimplifyVW(geometry, 409600))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 819200), points = ST_Npoints(ST_SimplifyVW(geometry, 819200))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 1638400), points = ST_Npoints(ST_SimplifyVW(geometry, 1638400))
-	WHERE points > 6000;
-	UPDATE $SIMPLIFY_TABLE
-	SET geometry = ST_SimplifyVW(geometry, 3276800), points = ST_Npoints(ST_SimplifyVW(geometry, 3276800))
-	WHERE points > 6000;
-EOSQL
-
+		#tools/imposm3/bin/imposm import -connection "$PG_CONNECT" -mapping "$MAPPING_YAML" -overwritecache -cachedir "$IMPOSM3_CACHE_DIR" -read "$FULL_PBF" -dbschema-import="$DB_SCHEMA" -write
 
 		echo "====> : Exporting lake shapes into a shapefile"
-		query="SELECT osm_id, ST_makeValid(geometry) AS geometry FROM $SIMPLIFY_TABLE ORDER BY points DESC, osm_id DESC"
-		pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
+		#query="SELECT osm_id, ST_makeValid(geometry) AS geometry FROM $SIMPLIFY_TABLE ORDER BY points DESC, osm_id DESC"
+		query="SELECT osm_id, ST_SimplifyPreserveTopology(geometry, 25) AS geometry FROM osm_lake_polygon WHERE area > 2 * 1000 * 1000 AND name <> '' ORDER BY area DESC"
+		/opt/create_planet/tools/postgis-3.2.1/loader/pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
 		echo "====> : Creating a lake_centerline.geojson file from the exported shapefile"
-		label_centerlines --verbose --max_points=6000 --simplification=0.02 --smooth=2 --max_paths=5 --segmentize_maxlen 100 --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
-		#label_centerlines --verbose --max_points=6000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GPKG "$LAKE_SHP" "$CENTERLINES_GPKG"
+		label_centerlines --verbose --max_points=10000 --simplification=0.02 --smooth=3 --max_paths=5 --segmentize_maxlen=100 --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
+		#label_centerlines --verbose --max_points=10000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GPKG "$LAKE_SHP" "$CENTERLINES_GPKG"
 		#echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
 		ogr2ogr -f "ESRI Shapefile" "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
 	fi
