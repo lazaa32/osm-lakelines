@@ -26,16 +26,15 @@ if [ ! -f $CENTERLINES_GEOJSON ]; then
 		PG_CONNECT="postgis://$POSTGRES_USER:$POSTGRES_PASS@$POSTGRES_HOST/$POSTGRES_DB"
 		DB_SCHEMA="public"
 		
-		#tools/imposm3/bin/imposm import -connection "$PG_CONNECT" -mapping "$MAPPING_YAML" -overwritecache -cachedir "$IMPOSM3_CACHE_DIR" -read "$FULL_PBF" -dbschema-import="$DB_SCHEMA" -write
+		tools/imposm3/bin/imposm import -connection "$PG_CONNECT" -mapping "$MAPPING_YAML" -overwritecache -cachedir "$IMPOSM3_CACHE_DIR" -read "$FULL_PBF" -dbschema-import="$DB_SCHEMA" -write
 
 		echo "====> : Exporting lake shapes into a shapefile"
-		#query="SELECT osm_id, ST_makeValid(geometry) AS geometry FROM $SIMPLIFY_TABLE ORDER BY points DESC, osm_id DESC"
 		query="SELECT osm_id, ST_SimplifyPreserveTopology(geometry, 25) AS geometry FROM osm_lake_polygon WHERE area > 2 * 1000 * 1000 AND name <> '' ORDER BY area DESC"
 		/opt/create_planet/tools/postgis-3.2.1/loader/pgsql2shp -f "$LAKE_SHP" -h "$POSTGRES_HOST" -u "$POSTGRES_USER" -P "$POSTGRES_PASS" "$POSTGRES_DB" "$query"
 		echo "====> : Creating a lake_centerline.geojson file from the exported shapefile"
 		label_centerlines --verbose --max_points=10000 --simplification=0.02 --smooth=3 --max_paths=5 --segmentize_maxlen=100 --output_driver GeoJSON "$LAKE_SHP" "$CENTERLINES_GEOJSON"
 		#label_centerlines --verbose --max_points=10000 --simplification=0.02 --smooth=2 --max_paths=1 --output_driver GPKG "$LAKE_SHP" "$CENTERLINES_GPKG"
-		#echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
+		echo "====> : Creating a lake_centerline.shp file from the exported shapefile"
 		ogr2ogr -f "ESRI Shapefile" "$CENTERLINES_SHP" "$CENTERLINES_GEOJSON"
 	fi
 else
